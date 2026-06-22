@@ -1,0 +1,309 @@
+========== Redis GDExtension ==========
+版本：v1.0.0
+作者：叁脚猫
+插件定制、商业合作，课联系我：316902108@qq.com
+高性能、超简单Godot-Redis插件，与Redis-Py完全一样。
+=======================================
+
+
+
+
+一、连接管理函数
+========================================
+
+1. connect(host: String = "127.0.0.1", port: int = 6379, password: String = "", database: int = 0, timeout_ms: int = 3000, max_connections: int = 10) -> bool
+   说明：连接到Redis服务器
+   入参：
+     host: Redis服务器地址
+     port: Redis服务器端口
+     password: Redis密码，无密码为空字符串
+     database: 要连接的数据库编号
+     timeout_ms: 连接超时时间（毫秒）
+     max_connections: 连接池最大连接数
+   返回：连接成功返回true，失败返回false
+
+2. disconnect() -> void
+   说明：断开与Redis服务器的连接，释放所有资源
+   入参：无
+   返回：无
+
+3. is_connected() -> bool
+   说明：检查当前是否已连接到Redis服务器
+   入参：无
+   返回：已连接返回true，未连接返回false
+
+
+二、核心字符串命令
+========================================
+
+1. get(key: String) -> RedisPromise
+   说明：获取指定键的值
+   入参：key - 要获取的键名
+   返回：RedisPromise对象，await后返回键的值（不存在返回null）
+
+2. set(key: String, value: Variant, ex: int = -1, px: int = -1, nx: bool = false, xx: bool = false) -> RedisPromise
+   说明：设置指定键的值
+   入参：
+     key: 要设置的键名
+     value: 要设置的值（支持所有Godot基本类型）
+     ex: 过期时间（秒），-1表示不过期
+     px: 过期时间（毫秒），-1表示不过期
+     nx: 仅当键不存在时才设置
+     xx: 仅当键存在时才设置
+   返回：RedisPromise对象，await后返回true表示成功
+
+3. del(key: String) -> RedisPromise
+   说明：删除指定的键
+   入参：key - 要删除的键名
+   返回：RedisPromise对象，await后返回被删除的键的数量
+
+4. exists(key: String) -> RedisPromise
+   说明：检查指定的键是否存在
+   入参：key - 要检查的键名
+   返回：RedisPromise对象，await后返回1表示存在，0表示不存在
+
+5. expire(key: String, seconds: int) -> RedisPromise
+   说明：为指定的键设置过期时间
+   入参：
+     key: 要设置过期时间的键名
+     seconds: 过期时间（秒）
+   返回：RedisPromise对象，await后返回1表示成功，0表示键不存在
+
+6. ttl(key: String) -> RedisPromise
+   说明：获取指定键的剩余生存时间
+   入参：key - 要查询的键名
+   返回：RedisPromise对象，await后返回剩余秒数（-1表示没有过期时间，-2表示键不存在）
+
+7. keys(pattern: String = "*") -> RedisPromise
+   说明：查找所有符合给定模式的键
+   入参：pattern - 匹配模式（*表示所有键）
+   返回：RedisPromise对象，await后返回匹配的键名数组
+
+8. incr(key: String) -> RedisPromise
+   说明：将键中存储的数字值加1
+   入参：key - 要递增的键名
+   返回：RedisPromise对象，await后返回递增后的值
+
+9. decr(key: String) -> RedisPromise
+   说明：将键中存储的数字值减1
+   入参：key - 要递减的键名
+   返回：RedisPromise对象，await后返回递减后的值
+
+10. incrby(key: String, increment: int) -> RedisPromise
+    说明：将键中存储的数字值加上指定的增量
+    入参：
+      key: 要递增的键名
+      increment: 增量值
+    返回：RedisPromise对象，await后返回递增后的值
+
+11. decrby(key: String, decrement: int) -> RedisPromise
+    说明：将键中存储的数字值减去指定的减量
+    入参：
+      key: 要递减的键名
+      decrement: 减量值
+    返回：RedisPromise对象，await后返回递减后的值
+
+三、哈希表命令
+========================================
+
+1. hget(key: String, field: String) -> RedisPromise
+   说明：获取哈希表中指定字段的值
+   入参：
+     key: 哈希表的键名
+     field: 哈希表中的字段名
+   返回：RedisPromise对象，await后返回字段的值（不存在返回null）
+
+2. hset(key: String, field_or_dict: Variant, value: Variant = null) -> RedisPromise
+   说明：设置哈希表中的字段值
+   入参：
+     key: 哈希表的键名
+     field_or_dict: 字段名或Dictionary对象
+     value: 字段值（当第一个参数是字段名时）
+   返回：RedisPromise对象，await后返回被设置的字段数量
+
+3. hmset(key: String, mapping: Dictionary) -> RedisPromise
+   说明：同时设置哈希表中的多个字段值
+   入参：
+     key: 哈希表的键名
+     mapping: 包含字段和值的Dictionary对象
+   返回：RedisPromise对象，await后返回true表示成功
+
+4. hgetall(key: String) -> RedisPromise
+   说明：获取哈希表中所有的字段和值
+   入参：key - 哈希表的键名
+   返回：RedisPromise对象，await后返回包含所有字段和值的Dictionary
+
+5. hkeys(key: String) -> RedisPromise
+   说明：获取哈希表中所有的字段名
+   入参：key - 哈希表的键名
+   返回：RedisPromise对象，await后返回字段名数组
+
+6. hvals(key: String) -> RedisPromise
+   说明：获取哈希表中所有的字段值
+   入参：key - 哈希表的键名
+   返回：RedisPromise对象，await后返回字段值数组
+
+7. hdel(key: String, field: String) -> RedisPromise
+   说明：删除哈希表中指定的字段
+   入参：
+     key: 哈希表的键名
+     field: 要删除的字段名
+   返回：RedisPromise对象，await后返回被删除的字段数量
+
+8. hexists(key: String, field: String) -> RedisPromise
+   说明：检查哈希表中是否存在指定的字段
+   入参：
+     key: 哈希表的键名
+     field: 要检查的字段名
+   返回：RedisPromise对象，await后返回1表示存在，0表示不存在
+
+9. hlen(key: String) -> RedisPromise
+   说明：获取哈希表中字段的数量
+   入参：key - 哈希表的键名
+   返回：RedisPromise对象，await后返回字段数量
+
+四、列表命令
+========================================
+
+1. lpush(key: String, value: Variant) -> RedisPromise
+   说明：将一个值插入到列表头部
+   入参：
+     key: 列表的键名
+     value: 要插入的值
+   返回：RedisPromise对象，await后返回插入后列表的长度
+
+2. rpush(key: String, value: Variant) -> RedisPromise
+   说明：将一个值插入到列表尾部
+   入参：
+     key: 列表的键名
+     value: 要插入的值
+   返回：RedisPromise对象，await后返回插入后列表的长度
+
+3. lpop(key: String) -> RedisPromise
+   说明：移除并返回列表的第一个元素
+   入参：key - 列表的键名
+   返回：RedisPromise对象，await后返回列表的第一个元素（列表为空返回null）
+
+4. rpop(key: String) -> RedisPromise
+   说明：移除并返回列表的最后一个元素
+   入参：key - 列表的键名
+   返回：RedisPromise对象，await后返回列表的最后一个元素（列表为空返回null）
+
+5. lrange(key: String, start: int, end: int) -> RedisPromise
+   说明：获取列表中指定范围内的元素
+   入参：
+     key: 列表的键名
+     start: 起始索引（0表示第一个元素，-1表示最后一个元素）
+     end: 结束索引
+   返回：RedisPromise对象，await后返回指定范围内的元素数组
+
+6. llen(key: String) -> RedisPromise
+   说明：获取列表的长度
+   入参：key - 列表的键名
+   返回：RedisPromise对象，await后返回列表的长度
+
+五、集合命令
+========================================
+
+1. sadd(key: String, value: Variant) -> RedisPromise
+   说明：向集合中添加一个成员
+   入参：
+     key: 集合的键名
+     value: 要添加的成员
+   返回：RedisPromise对象，await后返回被成功添加的成员数量
+
+2. smembers(key: String) -> RedisPromise
+   说明：返回集合中的所有成员
+   入参：key - 集合的键名
+   返回：RedisPromise对象，await后返回集合中的所有成员数组
+
+3. srem(key: String, value: Variant) -> RedisPromise
+   说明：从集合中移除一个成员
+   入参：
+     key: 集合的键名
+     value: 要移除的成员
+   返回：RedisPromise对象，await后返回被成功移除的成员数量
+
+4. scard(key: String) -> RedisPromise
+   说明：获取集合中成员的数量
+   入参：key - 集合的键名
+   返回：RedisPromise对象，await后返回集合中成员的数量
+
+5. sismember(key: String, value: Variant) -> RedisPromise
+   说明：判断成员是否存在于集合中
+   入参：
+     key: 集合的键名
+     value: 要判断的成员
+   返回：RedisPromise对象，await后返回1表示存在，0表示不存在
+
+六、有序集合命令
+========================================
+
+1. zadd(key: String, score: double, member: String) -> RedisPromise
+   说明：向有序集合中添加一个成员
+   入参：
+     key: 有序集合的键名
+     score: 成员的分数
+     member: 要添加的成员
+   返回：RedisPromise对象，await后返回被成功添加的成员数量
+
+2. zrange(key: String, start: int, stop: int, withscores: bool = false) -> RedisPromise
+   说明：返回有序集合中指定索引范围内的成员
+   入参：
+     key: 有序集合的键名
+     start: 起始索引
+     stop: 结束索引
+     withscores: 是否同时返回分数
+   返回：RedisPromise对象，await后返回成员数组（withscores为true时返回[成员1, 分数1, 成员2, 分数2...]）
+
+3. zrevrange(key: String, start: int, stop: int, withscores: bool = false) -> RedisPromise
+   说明：返回有序集合中指定索引范围内的成员，按分数从高到低排序
+   入参：
+     key: 有序集合的键名
+     start: 起始索引
+     stop: 结束索引
+     withscores: 是否同时返回分数
+   返回：RedisPromise对象，await后返回成员数组
+
+4. zrem(key: String, member: String) -> RedisPromise
+   说明：从有序集合中移除一个成员
+   入参：
+     key: 有序集合的键名
+     member: 要移除的成员
+   返回：RedisPromise对象，await后返回被成功移除的成员数量
+
+5. zcard(key: String) -> RedisPromise
+   说明：获取有序集合中成员的数量
+   入参：key - 有序集合的键名
+   返回：RedisPromise对象，await后返回有序集合中成员的数量
+
+6. zscore(key: String, member: String) -> RedisPromise
+   说明：返回有序集合中指定成员的分数
+   入参：
+     key: 有序集合的键名
+     member: 要查询的成员
+   返回：RedisPromise对象，await后返回成员的分数（成员不存在返回null）
+
+七、通用命令
+========================================
+
+1. execute_command(command: String, args: Array = []) -> RedisPromise
+   说明：执行任意Redis原生命令
+   入参：
+     command: Redis命令名称
+     args: 命令参数数组
+   返回：RedisPromise对象，await后返回命令执行结果
+   var result = await redis.execute_command("GEOADD", ["Sicily", 13.361389, 38.115556, "Palermo"])
+   var pos = await redis.execute_command("GEOPOS", ["Sicily", "Palermo"])
+   
+
+八、支持同步RedisPromise对象方法
+========================================
+
+1. wait_result() -> Variant
+   说明：同步等待（不推荐，会卡主线程
+   入参：无
+   返回：操作结果（错误返回以"错误:"开头的字符串）
+   var ret = redis.get("mykey").wait_result()
+   print("同步结果:", ret)
+   

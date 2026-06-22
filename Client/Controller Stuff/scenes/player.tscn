@@ -1,0 +1,129 @@
+[gd_scene format=3 uid="uid://ccnqt2ccpwvco"]
+
+[ext_resource type="Script" uid="uid://chahusuehpx7y" path="res://scripts/player.gd" id="1_g2els"]
+[ext_resource type="Script" uid="uid://kg4mtds6cvkq" path="res://scripts/orbital_camera.gd" id="2_g2els"]
+[ext_resource type="PackedScene" uid="uid://bsoho3e0dgahs" path="res://assets/skeletal_mesh/gobot/gobot.glb" id="3_qhqgy"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_lbhrr"]
+radius = 0.3
+height = 1.3875
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_sn4yy"]
+radius = 0.1
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_qlg0r"]
+animation = &"Fall"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_qhqgy"]
+animation = &"Idle"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_dqkch"]
+animation = &"Run"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_dqkch"]
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_qlg0r"]
+xfade_time = 0.2
+advance_mode = 2
+advance_expression = "is_on_floor() and velocity.length_squared() != 0.0"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_qhqgy"]
+xfade_time = 0.2
+advance_mode = 2
+advance_expression = "is_on_floor() and velocity.length_squared() == 0.0"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_tuyoq"]
+xfade_time = 0.2
+advance_mode = 2
+advance_expression = "not is_on_floor() and velocity.length_squared() != 0.0"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_fjrip"]
+xfade_time = 0.2
+advance_mode = 2
+advance_expression = "not is_on_floor() and velocity.length_squared() != 0.0"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_smehm"]
+xfade_time = 0.1
+advance_mode = 2
+advance_expression = "is_on_floor() and velocity.length_squared() == 0.0"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_ur7pv"]
+xfade_time = 0.1
+advance_mode = 2
+advance_expression = "is_on_floor() and velocity.length_squared() != 0.0"
+
+[sub_resource type="AnimationNodeStateMachine" id="AnimationNodeStateMachine_qlg0r"]
+states/Fall/node = SubResource("AnimationNodeAnimation_qlg0r")
+states/Fall/position = Vector2(494, 146)
+states/Idle/node = SubResource("AnimationNodeAnimation_qhqgy")
+states/Idle/position = Vector2(329, 100)
+states/Run/node = SubResource("AnimationNodeAnimation_dqkch")
+states/Run/position = Vector2(329, 190)
+transitions = ["Start", "Idle", SubResource("AnimationNodeStateMachineTransition_dqkch"), "Idle", "Run", SubResource("AnimationNodeStateMachineTransition_qlg0r"), "Run", "Idle", SubResource("AnimationNodeStateMachineTransition_qhqgy"), "Idle", "Fall", SubResource("AnimationNodeStateMachineTransition_tuyoq"), "Run", "Fall", SubResource("AnimationNodeStateMachineTransition_fjrip"), "Fall", "Idle", SubResource("AnimationNodeStateMachineTransition_smehm"), "Fall", "Run", SubResource("AnimationNodeStateMachineTransition_ur7pv")]
+graph_offset = Vector2(-220, 1)
+
+[node name="Player" type="CharacterBody3D" unique_id=350162904]
+input_ray_pickable = false
+script = ExtResource("1_g2els")
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=1898909592]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.69375, 0)
+shape = SubResource("CapsuleShape3D_lbhrr")
+debug_color = Color(1, 1, 1, 0.41960785)
+
+[node name="OrbitalCamera" type="Node3D" parent="." unique_id=1464158828]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
+script = ExtResource("2_g2els")
+
+[node name="SpringArm" type="SpringArm3D" parent="OrbitalCamera" unique_id=1379663839]
+transform = Transform3D(1, 0, 0, 0, 0.9659258, 0.25881904, 0, -0.25881904, 0.9659258, 0, 0, 0)
+shape = SubResource("SphereShape3D_sn4yy")
+spring_length = 3.0
+
+[node name="Camera" type="Camera3D" parent="OrbitalCamera/SpringArm" unique_id=289877902]
+current = true
+fov = 90.0
+
+[node name="Model" type="Node3D" parent="." unique_id=860007929]
+
+[node name="Gobot" parent="Model" unique_id=1043174273 instance=ExtResource("3_qhqgy")]
+
+[node name="Skeleton3D" parent="Model/Gobot" index="0" unique_id=606646337]
+bones/1/position = Vector3(0.12536073, 0.098913886, 0.07289007)
+bones/1/rotation = Quaternion(0.77254933, 0.10769145, -0.13622133, 0.6107487)
+bones/2/position = Vector3(-0.109875254, 0.0989111, -0.051076505)
+bones/2/rotation = Quaternion(0.67936844, -0.31008527, 0.39223355, 0.5370833)
+bones/3/position = Vector3(0, 0.35742995, 0)
+bones/3/rotation = Quaternion(0.06974965, -0.013986551, 0.0009780342, 0.997466)
+bones/4/rotation = Quaternion(1, 1.1653492e-10, -7.591282e-08, 3.7269174e-09)
+bones/5/rotation = Quaternion(-0.45170906, -0.1761393, -0.058915794, 0.8726185)
+bones/6/rotation = Quaternion(0.34074152, 1.056974e-06, -1.164086e-05, 0.94015706)
+bones/7/rotation = Quaternion(-0.23150268, 0.5125089, 0.1991848, 0.80253756)
+bones/8/rotation = Quaternion(0.4793952, -1.0069633e-06, 1.6414098e-05, 0.8775991)
+bones/9/rotation = Quaternion(-0.7061768, -0.2467503, -0.59570813, 0.29250726)
+bones/10/rotation = Quaternion(2.1693721e-07, 5.3554135e-07, -0.39502862, 0.9186688)
+bones/11/rotation = Quaternion(-0.28973183, -0.63745815, -0.21743849, 0.680017)
+bones/12/rotation = Quaternion(0.48790628, -0.017439913, 0.008545416, 0.87268)
+bones/13/rotation = Quaternion(-0.371224, -0.0019769727, 0.0058536613, 0.9285229)
+bones/14/rotation = Quaternion(-0.5023332, 1.5004881e-05, -2.8505434e-05, 0.8646742)
+bones/15/rotation = Quaternion(-0.37122393, -0.0019769808, 0.0058536916, 0.9285229)
+bones/16/rotation = Quaternion(-0.50233316, 1.4999915e-05, -2.85068e-05, 0.8646742)
+bones/17/rotation = Quaternion(-0.6059118, 0.2888898, 0.69744146, 0.25097618)
+bones/18/rotation = Quaternion(2.2720279e-07, -5.847486e-07, 0.39502862, 0.9186688)
+bones/19/rotation = Quaternion(-0.28973186, 0.6374581, 0.21743849, 0.680017)
+bones/20/rotation = Quaternion(0.4879063, 0.017439917, -0.008545413, 0.87268)
+bones/21/rotation = Quaternion(-0.37122408, 0.0019769655, -0.00585365, 0.9285227)
+bones/22/rotation = Quaternion(-0.5023332, -1.4987976e-05, 2.8498614e-05, 0.8646742)
+bones/23/rotation = Quaternion(-0.371224, 0.0019769839, -0.005853679, 0.9285229)
+bones/24/rotation = Quaternion(-0.5023332, -1.5003436e-05, 2.849141e-05, 0.8646742)
+bones/25/position = Vector3(2.7943264e-10, 0.18997708, -8.338247e-09)
+bones/25/rotation = Quaternion(-0.06975651, 4.5896467e-08, 3.0344964e-09, 0.99756414)
+
+[node name="AnimationTree" type="AnimationTree" parent="." unique_id=1532131233]
+root_node = NodePath("../Model/Gobot")
+tree_root = SubResource("AnimationNodeStateMachine_qlg0r")
+advance_expression_base_node = NodePath("..")
+anim_player = NodePath("../Model/Gobot/AnimationPlayer")
+
+[editable path="Model/Gobot"]

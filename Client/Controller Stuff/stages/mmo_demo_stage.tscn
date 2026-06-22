@@ -1,0 +1,72 @@
+[gd_scene format=3 uid="uid://bagne1p2x0xyx"]
+
+[ext_resource type="Material" uid="uid://drp21ayfi20ci" path="res://Client/Controller Stuff/assets/materials/prototype/square_gray.material" id="1_y2vua"]
+[ext_resource type="Material" uid="uid://b8cogcbbew34c" path="res://Client/Controller Stuff/assets/materials/prototype/square_green.material" id="2_6b0o8"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_kcyhe"]
+sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+ground_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+
+[sub_resource type="Sky" id="Sky_rydfh"]
+sky_material = SubResource("ProceduralSkyMaterial_kcyhe")
+
+[sub_resource type="Environment" id="Environment_2p4ms"]
+background_mode = 2
+sky = SubResource("Sky_rydfh")
+tonemap_mode = 2
+glow_enabled = true
+
+[sub_resource type="BoxMesh" id="BoxMesh_kcyhe"]
+size = Vector3(128, 1, 128)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_rydfh"]
+size = Vector3(128, 1, 128)
+
+[node name="Game" type="Node3D" unique_id=2083668803]
+
+[node name="Map" type="Node3D" parent="." unique_id=1980290267]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="Map" unique_id=1605817091]
+environment = SubResource("Environment_2p4ms")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Map" unique_id=2118906981]
+transform = Transform3D(0.5000001, -0.75, 0.4330126, 2.7805946e-08, 0.49999994, 0.8660255, -0.8660254, -0.4330128, 0.25000006, 0, 5, 0)
+shadow_enabled = true
+
+[node name="Floor" type="MeshInstance3D" parent="Map" unique_id=1683737136]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+material_override = ExtResource("1_y2vua")
+mesh = SubResource("BoxMesh_kcyhe")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Map/Floor" unique_id=1429894537]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Map/Floor/StaticBody3D" unique_id=1589430370]
+shape = SubResource("BoxShape3D_rydfh")
+debug_color = Color(1, 1, 1, 0.41960785)
+debug_fill = false
+
+[node name="Obstacles" type="CSGCombiner3D" parent="Map" unique_id=593919012]
+material_override = ExtResource("2_6b0o8")
+use_collision = true
+
+[node name="CSGBox3D" type="CSGBox3D" parent="Map/Obstacles" unique_id=1464969710]
+transform = Transform3D(0.90630776, -0.42261827, 0, 0.42261827, 0.90630776, 0, 0, 0, 1, 5.087962, 1.4292285, -8.198498)
+size = Vector3(11.1, 0.5, 5.5)
+
+[node name="CSGBox3D1" type="CSGBox3D" parent="Map/Obstacles" unique_id=2071421306]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13, 1.75, -8.2)
+size = Vector3(6, 4.5, 5.5)
+
+[node name="CSGBox3D2" type="CSGBox3D" parent="Map/Obstacles" unique_id=1405232424]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13, 3.5, -1.9000001)
+
+[node name="CSGBox3D3" type="CSGBox3D" parent="Map/Obstacles" unique_id=499362548]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13, 3.5, 2.1)
+
+[node name="CSGBox3D4" type="CSGBox3D" parent="Map/Obstacles" unique_id=1313868752]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13, 3.5, 6.1)
+
+[node name="CSGBox3D5" type="CSGBox3D" parent="Map/Obstacles" unique_id=351976756]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13, 3.5, 10.1)
+
+[node name="Actors" type="Node3D" parent="." unique_id=2094495535]

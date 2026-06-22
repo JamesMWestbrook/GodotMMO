@@ -1,0 +1,5 @@
+0x01- join request from client
+0x02- join confirmation from server with player name
+0x03- server broadcast to everyone whenever a player is added, includes flag for isLocal telling the client 
+which player scene is theirs
+

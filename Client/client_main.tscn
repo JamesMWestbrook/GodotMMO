@@ -1,0 +1,26 @@
+[gd_scene format=3 uid="uid://dbdb8qb8mw78n"]
+
+[ext_resource type="Script" uid="uid://b7tser2520tm3" path="res://Client/ClientMain.cs" id="1_edwp7"]
+[ext_resource type="PackedScene" uid="uid://gy20nk0w2ocg" path="res://Client/Controller Stuff/scenes/mmo_player.tscn" id="2_tcgbn"]
+[ext_resource type="PackedScene" uid="uid://bagne1p2x0xyx" path="res://Client/Controller Stuff/stages/mmo_demo_stage.tscn" id="3_svfs1"]
+
+[node name="ClientMain" type="Node" unique_id=159345534 node_paths=PackedStringArray("CharNameLineEdit", "ConnectToServerButton")]
+script = ExtResource("1_edwp7")
+CharNameLineEdit = NodePath("HBoxContainer/CharNameLineEdit")
+ConnectToServerButton = NodePath("HBoxContainer/ConnectToServerButton")
+PlayerScene = ExtResource("2_tcgbn")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="." unique_id=572314679]
+offset_right = 297.0
+offset_bottom = 40.0
+
+[node name="CharNameLineEdit" type="LineEdit" parent="HBoxContainer" unique_id=24094329]
+layout_mode = 2
+placeholder_text = "Enter name here!"
+expand_to_text_length = true
+
+[node name="ConnectToServerButton" type="Button" parent="HBoxContainer" unique_id=138479855]
+layout_mode = 2
+text = "Connect to server!"
+
+[node name="Game" parent="." unique_id=2083668803 instance=ExtResource("3_svfs1")]
