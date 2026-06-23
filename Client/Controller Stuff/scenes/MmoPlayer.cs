@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Numerics;
+using Telepathy;
 
 public partial class MmoPlayer : CharacterBody3D
 {
@@ -8,11 +9,15 @@ public partial class MmoPlayer : CharacterBody3D
     [Export] float Gravity = -9.8f;
     [Export] float JumpImpulse = 4.5f;
     [Export] float rotation_velocity = 10f;
+    [Export] double IdleTimeTemplate = 1;
 
     private Node3D OrbitalCamera;
     private Node3D Model;
 
     public bool IsLocalPlayer = false;
+
+    private bool isStill = false;
+    private double IdleTimer = 1;
 
     public override void _Ready()
     {
@@ -22,6 +27,25 @@ public partial class MmoPlayer : CharacterBody3D
         if (!IsLocalPlayer)
         {
             OrbitalCamera.QueueFree();
+        }
+    }
+    public override void _Process(double delta)
+    {
+
+
+        if (!IsLocalPlayer) return;
+        if (!Velocity.IsZeroApprox())
+        {
+            ClientMain.Main.SendMovementUpdate(Position, Model.Rotation.Y);
+        }
+        else
+        {
+            IdleTimer -= delta;
+            if (IdleTimer <= 0)
+            {
+                IdleTimer = IdleTimeTemplate;
+                ClientMain.Main.SendMovementUpdate(Position, Model.Rotation.Y);
+            }
         }
     }
 

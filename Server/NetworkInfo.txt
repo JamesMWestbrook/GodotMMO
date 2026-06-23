@@ -1,0 +1,7 @@
+0x01 player join request, name attached
+0x02 server: send playername to client
+0x03 server: send player to spawn with info
+
+0x11 client: position x, y, z, rotation Y
+0x12 server: send above info to each client
+
