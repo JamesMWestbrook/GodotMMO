@@ -39,7 +39,6 @@ public partial class ServerMain : Node
     private void ProcessIncomingData(int connectionId, ArraySegment<byte> message)
     {
         if (message.Count == 0) return;
-
         byte messageId = message.Array[message.Offset];
         switch (messageId)
         {
@@ -84,6 +83,9 @@ public partial class ServerMain : Node
                         player.yPos = BitConverter.ToSingle(message.Array, message.Offset + 5);
                         player.zPos = BitConverter.ToSingle(message.Array, message.Offset + 9);
                         player.yRot = BitConverter.ToSingle(message.Array, message.Offset + 13);
+
+                        byte animLength = message.Array[message.Offset + 17];
+                        player.animation = Encoding.UTF8.GetString(message.Array, message.Offset + 18, animLength);
                         BroadcastMovementToAll(connectionId, player);
                     }
 
@@ -129,7 +131,9 @@ public partial class ServerMain : Node
     private void BroadcastMovementToAll(int connectionId, PlayerNetworkInfo player)
     {
         // Payload: 1 byte (MsgID 0x12) + 4 bytes (Int ID) + 12 bytes (Vector3) + 4 bytes (Rot Float) = 21 bytes
-        byte[] payload = new byte[1 + 4 + 12 + 4];
+        //+ 1 in case string is null + string's length
+        byte[] animBytes = Encoding.UTF8.GetBytes(player.animation);
+        byte[] payload = new byte[1 + 4 + 12 + 4 + 1 + animBytes.Length];
         payload[0] = 0x12;
 
         //pack connectionID
@@ -140,6 +144,8 @@ public partial class ServerMain : Node
         Buffer.BlockCopy(BitConverter.GetBytes(player.zPos), 0, payload, 13, 4);
         Buffer.BlockCopy(BitConverter.GetBytes(player.yRot), 0, payload, 17, 4);
 
+        payload[21] = (byte)animBytes.Length;
+        Buffer.BlockCopy(animBytes, 0, payload, 22, animBytes.Length);
         //send to everyoen but the source player
         foreach (int peerId in connectedPlayers.Keys)
         {

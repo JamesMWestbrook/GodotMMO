@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.ComponentModel;
+using System.Linq;
 using System.Text;
 using Telepathy;
 
@@ -78,7 +79,7 @@ public partial class ClientMain : Node
             string playerName = Encoding.UTF8.GetString(message.Array, message.Offset + 6, message.Count - 6);
             SpawnNetworkPlayer(networkId, playerName, isLocal);
         }
-        //position/rotation updates for other players
+        //position/rotation/animation updates for other players
         if (messageId == 0x12)
         {
             int networkId = BitConverter.ToInt32(message.Array, message.Offset + 1);
@@ -86,15 +87,16 @@ public partial class ClientMain : Node
             float y = BitConverter.ToSingle(message.Array, message.Offset + 9);
             float z = BitConverter.ToSingle(message.Array, message.Offset + 13);
             float rotY = BitConverter.ToSingle(message.Array, message.Offset + 17);
+            byte animLength = message.Array[message.Offset + 21];
+            string animName = Encoding.UTF8.GetString(message.Array, message.Offset + 22, animLength);
 
             // Look up the node in the scene tree using the structural naming convention from SpawnNetworkPlayer
             // e.g., newPlayer.Name = $"Player_{networkId}";
             MmoPlayer puppet = GetNodeOrNull<MmoPlayer>($"Player_{networkId}");
 
-            GD.Print($"Client Received: Rotation {rotY}");
+            GD.Print($"Client Received: Animation {animName}");
             if (IsInstanceValid(puppet) && !puppet.IsLocalPlayer)
             {
-                GD.Print("puppet is valid");
                 // Update position
                 puppet.GlobalPosition = new Godot.Vector3(x, y, z);
 
@@ -104,6 +106,8 @@ public partial class ClientMain : Node
                 {
                     model.Rotation = new Godot.Vector3(model.Rotation.X, rotY, model.Rotation.Z);
                 }
+                puppet.animPlayer.CurrentAnimation = animName;
+                puppet.animPlayer.Play();
             }
         }
     }
@@ -123,9 +127,19 @@ public partial class ClientMain : Node
         AddChild(newPlayer);
         GD.Print($"Client: Spawned player '{playerName}' | Network ID: {networkId} | IsLocal: {isLocal}");
     }
-    public void SendMovementUpdate(Godot.Vector3 position, float rotationY)
+    public void SendMovementUpdate(Godot.Vector3 position, float rotationY, string animName)
     {//1 byte for messageid, 4 bytes per 3 floats floats for x y z, 4 bytes for 1 float y rotation  
-        byte[] payload = new byte[1 + 12 + 4];
+        GD.Print($"Anim name client sending: {animName}");
+        byte[] animBytes = Encoding.UTF8.GetBytes(animName);
+
+        if (animBytes.Length > 255)
+        {
+            GD.PrintErr("Animation name is too long");
+            return;
+        }
+        //message type + 12 bytes (3 floats for xyz) + 4 bytes(1 float for y rotation) + x bytes(string data animation)
+        //extra 1 before animBytes is to account for string being empty
+        byte[] payload = new byte[1 + 12 + 4 + 1 + animBytes.Length];
 
         payload[0] = 0x11;
 
@@ -133,8 +147,13 @@ public partial class ClientMain : Node
         Buffer.BlockCopy(BitConverter.GetBytes(position.Y), 0, payload, 5, 4);
         Buffer.BlockCopy(BitConverter.GetBytes(position.Z), 0, payload, 9, 4);
         Buffer.BlockCopy(BitConverter.GetBytes(rotationY), 0, payload, 13, 4);
+        //pack string length at offset 17
+        payload[17] = (byte)animBytes.Length;
+        //pack string bytes starting at offset 18
+        Buffer.BlockCopy(animBytes, 0, payload, 18, animBytes.Length);
 
-        client.Send(new ArraySegment<byte>(payload));
+        ArraySegment<byte> message = new ArraySegment<byte>(payload);
+        client.Send(message);
     }
 
 }

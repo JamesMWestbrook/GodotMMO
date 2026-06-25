@@ -13,6 +13,10 @@ public partial class MmoPlayer : CharacterBody3D
 
     private Node3D OrbitalCamera;
     private Node3D Model;
+    private AnimationTree AnimTree;
+    public AnimationPlayer animPlayer;
+    public AnimationTree animTree;
+    public AnimationNodeStateMachinePlayback stateMachine;
 
     public bool IsLocalPlayer = false;
 
@@ -23,20 +27,25 @@ public partial class MmoPlayer : CharacterBody3D
     {
         OrbitalCamera = GetNode<Node3D>("OrbitalCamera");
         Model = GetNode<Node3D>("Model");
+        AnimTree = GetNode<AnimationTree>("AnimationTree");
+        animPlayer = GetNode<AnimationPlayer>("Model/Gobot/AnimationPlayer");
+        animTree = GetNode<AnimationTree>("AnimationTree");
+        stateMachine = (AnimationNodeStateMachinePlayback)animTree.Get("parameters/playback");
 
         if (!IsLocalPlayer)
         {
             OrbitalCamera.QueueFree();
+            AnimTree.QueueFree();
         }
     }
     public override void _Process(double delta)
     {
 
-
         if (!IsLocalPlayer) return;
+
         if (!Velocity.IsZeroApprox())
         {
-            ClientMain.Main.SendMovementUpdate(Position, Model.Rotation.Y);
+            ClientMain.Main.SendMovementUpdate(Position, Model.Rotation.Y, stateMachine.GetCurrentNode());
         }
         else
         {
@@ -44,7 +53,7 @@ public partial class MmoPlayer : CharacterBody3D
             if (IdleTimer <= 0)
             {
                 IdleTimer = IdleTimeTemplate;
-                ClientMain.Main.SendMovementUpdate(Position, Model.Rotation.Y);
+                ClientMain.Main.SendMovementUpdate(Position, Model.Rotation.Y, stateMachine.GetCurrentNode());
             }
         }
     }

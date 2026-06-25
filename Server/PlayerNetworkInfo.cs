@@ -8,7 +8,7 @@ public partial class PlayerNetworkInfo
     public float yPos;
     public float zPos;
     public float yRot;
-
+    public string animation;
 
     public PlayerNetworkInfo(string playerName)
     {
